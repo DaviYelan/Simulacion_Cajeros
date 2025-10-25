@@ -9,12 +9,10 @@ supermercado/
 ├── main.py                 # Archivo principal que ejecuta la simulación
 └── display/                # Parte grafica de la simulacion
 ├── models/
-│   ├── __init__.py
 │   ├── cliente.py          # Clase Cliente
 │   ├── cajero.py           # Clase Cajero
 │   └── caja.py             # Clase Caja
 └── simulation/
-    ├── __init__.py
     └── generadorDatos.py   # Generador de datos aleatorios
 ```
 
@@ -73,10 +71,10 @@ Clase responsable de generar datos aleatorios para la simulación.
 1. **Inicialización:**
    - Se crea un generador de datos
    - Se generan 5 cajeros con experiencia aleatoria
-   - Se crean 5 cajas: 4 normales y 1 express (la caja 5)
+   - Se crean 5 cajas: 4 normales y 1 express
 
 2. **Generación de Clientes:**
-   - Se generan 20 clientes con número aleatorio de artículos (1-50)
+   - Se generan N clientes con número aleatorio de artículos (1-50)
 
 3. **Asignación de Clientes:**
    - Para cada cliente, se intenta asignar a una caja aleatoria
