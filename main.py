@@ -4,22 +4,56 @@ from simulation.generadorDatos import GeneradorDatos
 from models.caja import Caja
 import random
 
-def main():
+def encontrarCajaMasRapida(cajas):
+    """
+    Encuentra la caja que atendería más rápido a un nuevo cliente.
+    Considera el tiempo total de atención acumulado en cada caja.
+    """
+    if not cajas:
+        return None
+
+    # Encontrar la caja con el menor tiempo de atención total
+    caja_mas_rapida = min(cajas, key=lambda caja: caja.tiempoAtencionTotal)
+    return caja_mas_rapida
+
+def main(num_cajeros, num_clientes, posicion_express):
+    """
+    Simulación de supermercado con configuración completa.
+
+    Args:
+        num_cajeros: Número de cajeros a generar
+        num_clientes: Número de clientes a generar
+        posicion_express: Posición de la caja express ("primera", "medio", "ultima", "aleatoria")
+    """
+    # === CONFIGURACIÓN DE LA SIMULACIÓN ===
+    # Todas las configuraciones se hacen aquí al inicio
+
     # Inicializar generador de datos
     generador = GeneradorDatos()
 
-    # Generar 5 cajeros
-    cajeros = generador.generarCajeros(5)
+    # Generar cajeros
+    cajeros = generador.generarCajeros(num_cajeros)
 
-    # Crear 5 cajas: 4 normales y 1 express
+    # Determinar posición de la caja express
+    posicion_express_idx = None
+    if posicion_express == "primera":
+        posicion_express_idx = 0
+    elif posicion_express == "medio":
+        posicion_express_idx = num_cajeros // 2
+    elif posicion_express == "ultima":
+        posicion_express_idx = num_cajeros - 1
+    elif posicion_express == "aleatoria":
+        posicion_express_idx = random.randint(0, num_cajeros - 1)
+
+    # Crear cajas con posición express configurable
     cajas = []
-    for i in range(5):
-        es_express = (i == 4)  # La quinta caja es express
+    for i in range(num_cajeros):
+        es_express = (i == posicion_express_idx)
         caja = Caja(idCaja=i+1, cajero=cajeros[i], esExpress=es_express)
         cajas.append(caja)
 
-    # Generar clientes (por ejemplo, 25 clientes)
-    clientes = generador.generaClientes(25)
+    # Generar clientes
+    clientes = generador.generaClientes(num_clientes)
 
     # Asignar clientes a cajas respetando las reglas de express
     for cliente in clientes:
@@ -47,5 +81,28 @@ def main():
             print(f"  {cliente}")
         print()
 
+    # Encontrar y mostrar la caja más rápida para un nuevo cliente
+    caja_mas_rapida = encontrarCajaMasRapida(cajas)
+    print("=== RECOMENDACIÓN PARA NUEVO CLIENTE ===")
+    if caja_mas_rapida:
+        tipo_caja = "Express" if caja_mas_rapida.esExpress else "Normal"
+        print(f"La caja más rápida para un nuevo cliente es la Caja {caja_mas_rapida.idCaja} ({tipo_caja})")
+        print(f"Tiempo total de atención actual: {caja_mas_rapida.tiempoAtencionTotal:.2f}s")
+        print(f"Clientes en fila: {len(caja_mas_rapida.filaClientes)}")
+    print()
+
 if __name__ == "__main__":
-    main()
+    # === CONFIGURACIÓN FÁCIL DE LA SIMULACIÓN ===
+    # Cambia estos valores para probar diferentes escenarios
+
+    # Número de cajeros/cajas
+    num_cajeros = 5
+
+    # Número de clientes
+    num_clientes = 25
+
+    # Posición de la caja express: "primera", "medio", "ultima", "aleatoria"
+    posicion_express = "ultima"
+
+    # Ejecutar simulación con la configuración
+    main(num_cajeros, num_clientes, posicion_express)
