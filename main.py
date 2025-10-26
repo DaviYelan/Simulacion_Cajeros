@@ -1,5 +1,5 @@
 # Simulación de supermercado con 5 cajas (4 normales y 1 express)
-
+from display.interfaz import iniciar_interfaz
 from simulation.generadorDatos import GeneradorDatos
 from models.caja import Caja
 import random
@@ -90,6 +90,8 @@ def main(num_cajeros, num_clientes, posicion_express):
         print(f"Tiempo total de atención actual: {caja_mas_rapida.tiempoAtencionTotal:.2f}s")
         print(f"Clientes en fila: {len(caja_mas_rapida.filaClientes)}")
     print()
+
+    iniciar_interfaz()
 
 if __name__ == "__main__":
     # === CONFIGURACIÓN FÁCIL DE LA SIMULACIÓN ===
