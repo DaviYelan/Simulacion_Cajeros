@@ -55,14 +55,26 @@ def main(num_cajeros, num_clientes, posicion_express):
     # Generar clientes
     clientes = generador.generaClientes(num_clientes)
 
-    # Asignar clientes a cajas respetando las reglas de express
+    # Asignar clientes a cajas con lógica inteligente
     for cliente in clientes:
         asignado = False
-        while not asignado:
-            # Intentar asignar a una caja aleatoria
-            caja_aleatoria = random.choice(cajas)
-            if caja_aleatoria.agregarCliente(cliente):
+
+        # Si el cliente puede usar express (≤10 artículos), intentar primero la caja express
+        if cliente.numeroArticulos <= 10:
+            caja_express = next((caja for caja in cajas if caja.esExpress), None)
+            if caja_express and caja_express.agregarCliente(cliente):
                 asignado = True
+
+        # Si no se asignó a express (o no puede usarla), asignar a caja normal aleatoria
+        if not asignado:
+            cajas_normales = [caja for caja in cajas if not caja.esExpress]
+            while not asignado and cajas_normales:
+                caja_aleatoria = random.choice(cajas_normales)
+                if caja_aleatoria.agregarCliente(cliente):
+                    asignado = True
+                else:
+                    # Si no se pudo asignar, remover de la lista para evitar loop infinito
+                    cajas_normales.remove(caja_aleatoria)
 
     # Calcular tiempos de atención para cada caja
     for caja in cajas:
@@ -91,7 +103,8 @@ def main(num_cajeros, num_clientes, posicion_express):
         print(f"Clientes en fila: {len(caja_mas_rapida.filaClientes)}")
     print()
 
-    iniciar_interfaz()
+    # Retornar los datos para que la interfaz pueda usarlos
+    return cajas, clientes
 
 if __name__ == "__main__":
     # === CONFIGURACIÓN FÁCIL DE LA SIMULACIÓN ===
@@ -104,7 +117,11 @@ if __name__ == "__main__":
     num_clientes = 25
 
     # Posición de la caja express: "primera", "medio", "ultima", "aleatoria"
-    posicion_express = "ultima"
+    posicion_express = "primera"
 
     # Ejecutar simulación con la configuración
-    main(num_cajeros, num_clientes, posicion_express)
+    cajas, clientes = main(num_cajeros, num_clientes, posicion_express)
+
+    # Iniciar interfaz gráfica con los datos de la simulación
+    from display.interfaz import iniciar_interfaz_con_datos
+    iniciar_interfaz_con_datos(cajas, clientes)
