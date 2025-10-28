@@ -212,7 +212,7 @@ Clientes en fila:
 
 === RECOMENDACIÓN PARA NUEVO CLIENTE ===
 La caja más rápida para un nuevo cliente es la Caja 1 (Express)
-
+```
 
 ## Requisitos del Sistema
 
@@ -235,7 +235,6 @@ La caja más rápida para un nuevo cliente es la Caja 1 (Express)
 - **Configurable**: Todos los parámetros principales son ajustables
 - **Extensible**: Fácil agregar nuevas funcionalidades
 - **Documentado**: Código bien comentado y README completo
-```
 
 ## Autores
 - **César López
