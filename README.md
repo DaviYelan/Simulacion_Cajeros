@@ -169,10 +169,11 @@ python interfaz.py
 ### Personalización
 Edita las variables en `main.py` para cambiar la configuración inicial:
  
-python
+```python
 num_cajeros = 5        # Número de cajeros (3-8)
 num_clientes = 25      # Número de clientes (10-50)
 posicion_express = "primera"  # "primera", "medio", "ultima", "aleatoria"
+```
 
 ## Características Destacadas
 
