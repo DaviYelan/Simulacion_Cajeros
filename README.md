@@ -11,12 +11,10 @@ supermercado/
 ├── display/
 │   └── interfaz.py         # Interfaz gráfica con animación en tiempo real
 ├── models/
-│   ├── __init__.py
 │   ├── cliente.py          # Clase Cliente
 │   ├── cajero.py           # Clase Cajero
 │   └── caja.py             # Clase Caja
 └── simulation/
-    ├── __init__.py
     └── generadorDatos.py   # Generador de datos aleatorios
 ```
 
