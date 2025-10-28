@@ -66,29 +66,64 @@ Clase responsable de generar datos aleatorios para la simulación.
 - `generaClientes(numClientes)`: Genera una lista de clientes con número aleatorio de artículos
 - `generarCajeros(numCajeros)`: Genera una lista de cajeros con experiencia aleatoria
 
+## Modos de Ejecución
+
+### 1. Modo Consola (main.py)
+Ejecuta la simulación en terminal y muestra resultados detallados.
+
+```bash
+python main.py
+```
+
+**Configuración disponible:**
+- `num_cajeros`: Número de cajeros/cajas (3-8)
+- `num_clientes`: Número de clientes (10-50)
+- `posicion_express`: Posición de caja express ("primera", "medio", "ultima", "aleatoria")
+
+### 2. Modo Interfaz Gráfica (interfaz.py)
+Ejecuta la interfaz gráfica independiente con controles interactivos.
+
+```bash
+cd display
+python interfaz.py
+```
+
+### 3. Modo Integrado
+Ejecuta simulación inicial + interfaz gráfica automáticamente.
+
+```bash
+python main.py  # Automáticamente abre la interfaz después de calcular
+```
+
 ## Flujo de la Simulación
 
-1. **Inicialización:**
+1. **Configuración Inicial:**
+   - Número configurable de cajeros (3-8)
+   - Posición configurable de caja express ("primera", "medio", "ultima", "aleatoria")
+   - Número configurable de clientes (10-50)
+
+2. **Inicialización:**
    - Se crea un generador de datos
-   - Se generan 5 cajeros con experiencia aleatoria
-   - Se crean 5 cajas: 4 normales y 1 express
+   - Se generan N cajeros con experiencia aleatoria
+   - Se crean N cajas: N-1 normales y 1 express en posición configurable
 
-2. **Generación de Clientes:**
-   - Se generan N clientes con número aleatorio de artículos (1-50)
+3. **Generación de Clientes:**
+   - Se generan M clientes con número aleatorio de artículos (1-50)
 
-3. **Asignación de Clientes:**
-   - Para cada cliente, se intenta asignar a una caja aleatoria
-   - Si la caja es express y el cliente tiene más de 10 artículos, se rechaza la asignación
-   - Se repite hasta encontrar una caja disponible
+4. **Asignación Inteligente de Clientes:**
+   - **Clientes con ≤10 artículos**: Intentan primero la caja express
+   - **Clientes con >10 artículos**: Van directamente a cajas normales
+   - Lógica realista que simula comportamiento de clientes en supermercado
 
-4. **Cálculo de Tiempos:**
+5. **Cálculo de Tiempos:**
    - Para cada caja, se calcula el tiempo de atención de cada cliente
    - Se acumula el tiempo de espera: cada cliente posterior espera el tiempo de atención de los anteriores
    - El tiempo total de un cliente = tiempo de escaneo + tiempo de cobro + tiempo de espera acumulado
 
-5. **Resultados:**
-   - Se muestran estadísticas de cada caja
-   - Se listan los tiempos individuales de cada cliente
+6. **Visualización:**
+   - **Consola**: Resultados detallados con tiempos individuales
+   - **Interfaz gráfica**: Animación en tiempo real de la atención de clientes
+   - **Estadísticas**: Comparación de eficiencia entre cajas
 
 ## Lógica de Tiempo
 
@@ -112,28 +147,93 @@ tiempoEsperaAcumulado += tiempoAtencionCliente  # Para el siguiente cliente
 
 ## Ejecución
 
+### Modo Integrado (Recomendado)
+Ejecuta simulación completa con interfaz gráfica:
+
 ```bash
 python main.py
 ```
+
+### Modo Interfaz Gráfica Independiente
+Solo interfaz gráfica con controles interactivos:
+
+```bash
+cd display
+python interfaz.py
+```
+
+### Personalización
+Edita las variables en `main.py` para cambiar la configuración inicial:
+ 
+python
+num_cajeros = 5        # Número de cajeros (3-8)
+num_clientes = 25      # Número de clientes (10-50)
+posicion_express = "primera"  # "primera", "medio", "ultima", "aleatoria"
+
+## Características Destacadas
+
+### 🎯 Asignación Inteligente de Clientes
+- Los clientes con pocos artículos prefieren automáticamente la caja express
+- Simula comportamiento realista de clientes en supermercado
+- Evita colas innecesarias en cajas express
+
+### 🎨 Interfaz Gráfica Animada
+- Visualización en tiempo real de la atención de clientes
+- Animación automática con velocidad configurable
+- Diseño intuitivo con colores diferenciados para cajas normales/express
+
+### 📊 Análisis Comparativo
+- Recomendación automática de la caja más rápida para nuevos clientes
+- Estadísticas detalladas de eficiencia por caja
+- Comparación de rendimiento entre cajas normales y express
+
+### 🔧 Configuración Flexible
+- Número variable de cajeros y cajas (3-8)
+- Posición configurable de caja express
+- Cantidad ajustable de clientes
+- Velocidad de animación personalizable
 
 ## Salida de Ejemplo
 
 ```
 === RESULTADOS DE LA SIMULACIÓN ===
-Total de clientes generados: 20
+Total de clientes generados: 25
 Total de cajas: 5 (4 normales, 1 express)
 
-Caja 1 (Normal) atendida por Cajero con experiencia...
+Caja 1 (Express) atendida por Cajero con experiencia...
 Clientes en fila:
-  Cliente con 27 artículos., Tiempo total en ser atendido: 106.00s
-  Cliente con 4 artículos., Tiempo total en ser atendido: 106.00s + 46.00s = 152.00s
+  Cliente con 6 artículos., Tiempo total en ser atendido: 42.00s
+  Cliente con 8 artículos., Tiempo total en ser atendido: 90.00s
   ...
-```
+
+=== RECOMENDACIÓN PARA NUEVO CLIENTE ===
+La caja más rápida para un nuevo cliente es la Caja 1 (Express)
+
+
+## Requisitos del Sistema
+
+- Python 3.6+
+- Tkinter (incluido en la instalación estándar de Python)
+- Pillow (PIL) para imágenes: `pip install pillow`
 
 ## Notas Técnicas
 
-- Los tiempos están en segundos
-- La experiencia del cajero afecta la velocidad de escaneo
-- El tiempo de cobro es aleatorio para cada cajero
-- La simulación usa asignación aleatoria de clientes a cajas
-- Los tiempos se acumulan correctamente considerando la fila FIFO (First In, First Out)
+- **Tiempos**: Todas las mediciones están en segundos
+- **Experiencia del cajero**: Afecta la velocidad de escaneo (3s vs 6s por artículo)
+- **Tiempo de cobro**: Aleatorio entre 15-30 segundos por cajero
+- **Asignación inteligente**: Los clientes eligen cajas basándose en restricciones express
+- **Acumulación de tiempos**: FIFO correcto con espera acumulada en filas
+- **Interfaz gráfica**: Diseño responsivo que se adapta al número de cajas
+
+## Arquitectura del Sistema
+
+- **Modular**: Separación clara entre modelos, simulación e interfaz
+- **Configurable**: Todos los parámetros principales son ajustables
+- **Extensible**: Fácil agregar nuevas funcionalidades
+- **Documentado**: Código bien comentado y README completo
+```
+
+## Autores
+- **César López
+- **Luis Armijos
+- **Dilan Chamba 
