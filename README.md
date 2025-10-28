@@ -7,12 +7,16 @@ Este proyecto simula el funcionamiento de un supermercado con múltiples cajas d
 ```
 supermercado/
 ├── main.py                 # Archivo principal que ejecuta la simulación
-└── display/                # Parte grafica de la simulacion
+├── README.md               # Documentación del proyecto
+├── display/
+│   └── interfaz.py         # Interfaz gráfica con animación en tiempo real
 ├── models/
+│   ├── __init__.py
 │   ├── cliente.py          # Clase Cliente
 │   ├── cajero.py           # Clase Cajero
 │   └── caja.py             # Clase Caja
 └── simulation/
+    ├── __init__.py
     └── generadorDatos.py   # Generador de datos aleatorios
 ```
 
