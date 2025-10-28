@@ -12,23 +12,36 @@ from models.caja import Caja
 import random
 
 class SupermercadoGUI:
-    def __init__(self, root):
+    def __init__(self, root, cajas_precalculadas=None, clientes_precalculados=None):
         self.root = root
         self.root.title("Simulación de Supermercado")
         # Ventana más grande para mostrar todo
         self.root.geometry("1600x900")
         self.root.configure(bg="#f0f0f0")
-        
+
         # Variables de simulación
-        self.cajas = []
+        self.cajas = cajas_precalculadas or []
+        self.clientes_precalculados = clientes_precalculados
         self.animacion_activa = False
         self.velocidad_animacion = 1000  # milisegundos
-        
+        self.modo_precalculado = cajas_precalculadas is not None
+
         # Cargar imágenes
         self.cargar_imagenes()
-        
+
         # Crear interfaz
         self.crear_interfaz()
+
+        # Si hay datos precalculados, mostrarlos inmediatamente
+        if self.modo_precalculado:
+            # Guardar el estado original de las filas antes de mostrar
+            self.clientes_originales = []
+            for caja in self.cajas:
+                self.clientes_originales.append(caja.filaClientes.copy())
+
+            self.mostrar_simulacion_precalculada()
+            # En modo precalculado, permitir nueva simulación con configuración modificable
+            # Los controles permanecen habilitados para que el usuario pueda cambiarlos
         
     def cargar_imagenes(self):
         """Carga las imágenes de cajero y cliente"""
@@ -44,8 +57,8 @@ class SupermercadoGUI:
             self.img_cliente = ImageTk.PhotoImage(img_cliente)
             self.imagenes_cargadas = True
         except Exception as e:
-            print(f"No se pudieron cargar las imágenes: {e}")
-            print("Se usarán representaciones alternativas")
+            #print(f"No se pudieron cargar las imágenes: {e}")
+            #print("Se usarán representaciones alternativas")
             self.imagenes_cargadas = False
             self.img_cajero = None
             self.img_cliente = None
@@ -70,24 +83,40 @@ class SupermercadoGUI:
         # Frame de configuración y botones en una sola línea
         frame_config = tk.Frame(frame_controles, bg="#2c3e50")
         frame_config.pack(pady=5)
-        
-        tk.Label(frame_config, text="Clientes:", 
+
+        tk.Label(frame_config, text="Cajeros:",
                 bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
-        
+
+        self.spin_cajeros = tk.Spinbox(frame_config, from_=3, to=8, width=4, font=("Arial", 9))
+        self.spin_cajeros.delete(0, tk.END)
+        self.spin_cajeros.insert(0, "5")
+        self.spin_cajeros.pack(side=tk.LEFT, padx=3)
+
+        tk.Label(frame_config, text="Clientes:",
+                bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
+
         self.spin_clientes = tk.Spinbox(frame_config, from_=10, to=50, width=4, font=("Arial", 9))
         self.spin_clientes.delete(0, tk.END)
         self.spin_clientes.insert(0, "25")
         self.spin_clientes.pack(side=tk.LEFT, padx=3)
-        
-        tk.Label(frame_config, text="Velocidad:", 
+
+        tk.Label(frame_config, text="Posición Express:",
                 bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
-        
-        self.spin_velocidad = tk.Spinbox(frame_config, from_=500, to=3000, increment=500, 
+
+        self.combo_posicion = ttk.Combobox(frame_config, values=["primera", "medio", "ultima", "aleatoria"],
+                                         width=8, font=("Arial", 9), state="readonly")
+        self.combo_posicion.set("ultima")
+        self.combo_posicion.pack(side=tk.LEFT, padx=3)
+
+        tk.Label(frame_config, text="Velocidad:",
+                bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
+
+        self.spin_velocidad = tk.Spinbox(frame_config, from_=500, to=3000, increment=500,
                                         width=4, font=("Arial", 9))
         self.spin_velocidad.delete(0, tk.END)
         self.spin_velocidad.insert(0, "1000")
         self.spin_velocidad.pack(side=tk.LEFT, padx=3)
-        tk.Label(frame_config, text="ms", 
+        tk.Label(frame_config, text="ms",
                 bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
         
         # Separador vertical
@@ -138,48 +167,113 @@ class SupermercadoGUI:
         )
         self.label_stats.pack(pady=8, padx=15)
     
-    def iniciar_simulacion(self):
-        """Inicia una nueva simulación con animación automática"""
-        # Ocultar estadísticas si estaban visibles
-        self.frame_stats.pack_forget()
-        
+    def mostrar_simulacion_precalculada(self):
+        """Muestra la simulación con datos precalculados del main.py"""
         # Limpiar frame principal
         for widget in self.frame_principal.winfo_children():
             widget.destroy()
-        
-        # Generar datos
+
+        # Dibujar cajas con datos precalculados
+        self.dibujar_cajas_grid()
+
+        # Configurar velocidad de animación
+        self.velocidad_animacion = int(self.spin_velocidad.get())
+
+        # Reiniciar las filas de clientes a su estado original para la animación
+        self.resetear_clientes()
+
+        # Iniciar animación
+        self.animacion_activa = True
+        self.btn_iniciar.config(state=tk.NORMAL)  # Permitir reiniciar
+        self.btn_detener.config(state=tk.NORMAL)
+        self.animar_atencion()
+
+    def resetear_clientes(self):
+        """Resetea las filas de clientes a su estado original para reiniciar la animación"""
+        # Los datos precalculados incluyen las filas originales, pero la animación las modifica
+        # Necesitamos guardar el estado original al inicio
+        if not hasattr(self, 'clientes_originales'):
+            # Guardar el estado original de las filas
+            self.clientes_originales = []
+            for caja in self.cajas:
+                self.clientes_originales.append(caja.filaClientes.copy())
+
+        # Restaurar las filas originales
+        for i, caja in enumerate(self.cajas):
+            caja.filaClientes = self.clientes_originales[i].copy()
+
+    def iniciar_simulacion(self):
+        """Inicia una nueva simulación con animación automática"""
+        # Siempre permitir nuevas simulaciones, incluso en modo precalculado
+        # El usuario puede cambiar la configuración y ejecutar nuevas simulaciones
+
+        # Ocultar estadísticas si estaban visibles
+        self.frame_stats.pack_forget()
+
+        # Limpiar frame principal
+        for widget in self.frame_principal.winfo_children():
+            widget.destroy()
+
+        # Generar datos con configuración de la interfaz
         generador = GeneradorDatos()
+        num_cajeros = int(self.spin_cajeros.get())
         num_clientes = int(self.spin_clientes.get())
-        cajeros = generador.generarCajeros(5)
-        
-        # Crear cajas
+        posicion_express = self.combo_posicion.get()
+
+        cajeros = generador.generarCajeros(num_cajeros)
+
+        # Determinar posición de la caja express
+        posicion_express_idx = None
+        if posicion_express == "primera":
+            posicion_express_idx = 0
+        elif posicion_express == "medio":
+            posicion_express_idx = num_cajeros // 2  # Posición central
+        elif posicion_express == "ultima":
+            posicion_express_idx = num_cajeros - 1
+        elif posicion_express == "aleatoria":
+            posicion_express_idx = random.randint(0, num_cajeros - 1)
+
+        # Crear cajas con configuración
         self.cajas = []
-        for i in range(5):
-            es_express = (i == 4)
+        for i in range(num_cajeros):
+            es_express = (i == posicion_express_idx)
             caja = Caja(idCaja=i+1, cajero=cajeros[i], esExpress=es_express)
             self.cajas.append(caja)
-        
-        # Generar y asignar clientes
+
+        # Generar y asignar clientes con lógica inteligente
         clientes = generador.generaClientes(num_clientes)
         for cliente in clientes:
             asignado = False
-            intentos = 0
-            while not asignado and intentos < 100:
-                caja_aleatoria = random.choice(self.cajas)
-                if caja_aleatoria.agregarCliente(cliente):
+
+            # Si el cliente puede usar express (≤10 artículos), intentar primero la caja express
+            if cliente.numeroArticulos <= 10:
+                caja_express = next((caja for caja in self.cajas if caja.esExpress), None)
+                if caja_express and caja_express.agregarCliente(cliente):
                     asignado = True
-                intentos += 1
-        
+
+            # Si no se asignó a express (o no puede usarla), asignar a caja normal aleatoria
+            if not asignado:
+                cajas_normales = [caja for caja in self.cajas if not caja.esExpress]
+                intentos = 0
+                while not asignado and cajas_normales and intentos < 100:
+                    caja_aleatoria = random.choice(cajas_normales)
+                    if caja_aleatoria.agregarCliente(cliente):
+                        asignado = True
+                    else:
+                        # Si no se pudo asignar, remover de la lista para evitar loop infinito
+                        cajas_normales.remove(caja_aleatoria)
+                    intentos += 1
+
         # Calcular tiempos
         for caja in self.cajas:
             caja.calcularTiempoAtencion()
-        
+
         self.dibujar_cajas_grid()
-        
+
         # Configurar velocidad de animación
         self.velocidad_animacion = int(self.spin_velocidad.get())
-        
-        # Iniciar animación 
+
+        # Iniciar animación
         self.animacion_activa = True
         self.btn_iniciar.config(state=tk.DISABLED)
         self.btn_detener.config(state=tk.NORMAL)
@@ -368,14 +462,7 @@ class SupermercadoGUI:
             cajas_normales = [c for c in self.cajas if not c.esExpress]
             promedio_normales = sum(c.tiempoAtencionTotal for c in cajas_normales) / len(cajas_normales)
             diferencia = caja_express.tiempoAtencionTotal - promedio_normales
-            
-            if diferencia < 0:
-                comparacion = f" {abs(diferencia):.0f}s más rápida"
-            else:
-                comparacion = f" {diferencia:.0f}s más lenta"
-            
-            stats_text += f" | Express: {comparacion} vs promedio"
-        
+                   
         self.label_stats.config(text=stats_text)
         self.frame_stats.pack(fill=tk.X, padx=5, pady=5)
     
@@ -413,8 +500,14 @@ class SupermercadoGUI:
         self.root.after(self.velocidad_animacion, self.animar_atencion)
 
 
+def iniciar_interfaz_con_datos(cajas, clientes):
+    """Función para iniciar la interfaz gráfica con datos precalculados"""
+    root = tk.Tk()
+    app = SupermercadoGUI(root, cajas_precalculadas=cajas, clientes_precalculados=clientes)
+    root.mainloop()
+
 def iniciar_interfaz():
-    """Función para iniciar la interfaz gráfica"""
+    """Función para iniciar la interfaz gráfica independiente"""
     root = tk.Tk()
     app = SupermercadoGUI(root)
     root.mainloop()
