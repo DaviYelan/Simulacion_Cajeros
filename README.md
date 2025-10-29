@@ -238,4 +238,4 @@ La caja más rápida para un nuevo cliente es la Caja 1 (Express)
 ## Autores
 - **César López
 - **Luis Armijos
-- **Dilan Chamba 
+- **Dilan Chamba
