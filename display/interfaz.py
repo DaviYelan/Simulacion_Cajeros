@@ -104,7 +104,7 @@ class SupermercadoGUI:
                 bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
 
         self.combo_posicion = ttk.Combobox(frame_config, values=["primera", "medio", "ultima", "aleatoria"],
-                                         width=8, font=("Arial", 9), state="readonly")
+                                        width=8, font=("Arial", 9), state="readonly")
         self.combo_posicion.set("ultima")
         self.combo_posicion.pack(side=tk.LEFT, padx=3)
 
@@ -436,33 +436,42 @@ class SupermercadoGUI:
             ).pack(padx=2)
     
     def mostrar_estadisticas(self):
-        """Muestra las estadísticas finales de la simulación"""
+        """Muestra las estadísticas finales de la simulación con tiempos totales de todas las cajas"""
         if not self.cajas:
             return
-        
+
         # Calcular tiempos reales basados en la configuración inicial
         tiempos_reales = []
         for caja in self.cajas:
             tiempo_total = caja.tiempoAtencionTotal
             tiempos_reales.append((caja, tiempo_total))
-        
+
         tiempos_reales.sort(key=lambda x: x[1])
         caja_mas_rapida = tiempos_reales[0][0]
         caja_mas_lenta = tiempos_reales[-1][0]
-        
+
         # Encontrar caja express
         caja_express = next((c for c in self.cajas if c.esExpress), None)
-        
+
+        # Crear texto con tiempos de TODAS las cajas
         stats_text = f" RESULTADOS: ✅ Simulación completada | "
         stats_text += f" Más rápida: Caja {caja_mas_rapida.idCaja} ({caja_mas_rapida.tiempoAtencionTotal:.0f}s) | "
-        stats_text += f" Más lenta: Caja {caja_mas_lenta.idCaja} ({caja_mas_lenta.tiempoAtencionTotal:.0f}s)"
-        
+        stats_text += f" Más lenta: Caja {caja_mas_lenta.idCaja} ({caja_mas_lenta.tiempoAtencionTotal:.0f}s) | "
+
+        # Agregar tiempos de TODAS las cajas
+        stats_text += "Tiempos finales: "
+        tiempos_cajas = []
+        for caja in self.cajas:
+            tipo = "E" if caja.esExpress else "N"
+            tiempos_cajas.append(f"C{caja.idCaja}{tipo}:{caja.tiempoAtencionTotal:.0f}s")
+        stats_text += " | ".join(tiempos_cajas)
+
         if caja_express:
             # Comparar con promedio de cajas normales
             cajas_normales = [c for c in self.cajas if not c.esExpress]
             promedio_normales = sum(c.tiempoAtencionTotal for c in cajas_normales) / len(cajas_normales)
             diferencia = caja_express.tiempoAtencionTotal - promedio_normales
-                   
+
         self.label_stats.config(text=stats_text)
         self.frame_stats.pack(fill=tk.X, padx=5, pady=5)
     
