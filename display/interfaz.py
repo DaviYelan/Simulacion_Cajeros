@@ -240,29 +240,29 @@ class SupermercadoGUI:
             caja = Caja(idCaja=i+1, cajero=cajeros[i], esExpress=es_express)
             self.cajas.append(caja)
 
-        # Generar y asignar clientes con lógica inteligente
+        # Generar y asignar clientes de manera aleatoria
         clientes = generador.generaClientes(num_clientes)
         for cliente in clientes:
             asignado = False
 
-            # Si el cliente puede usar express (≤10 artículos), intentar primero la caja express
+            # Determinar cajas válidas para el cliente
             if cliente.numeroArticulos <= 10:
-                caja_express = next((caja for caja in self.cajas if caja.esExpress), None)
-                if caja_express and caja_express.agregarCliente(cliente):
-                    asignado = True
+                # Cliente puede usar cualquier caja (express o normal)
+                cajas_validas = self.cajas
+            else:
+                # Cliente solo puede usar cajas normales
+                cajas_validas = [caja for caja in self.cajas if not caja.esExpress]
 
-            # Si no se asignó a express (o no puede usarla), asignar a caja normal aleatoria
-            if not asignado:
-                cajas_normales = [caja for caja in self.cajas if not caja.esExpress]
-                intentos = 0
-                while not asignado and cajas_normales and intentos < 100:
-                    caja_aleatoria = random.choice(cajas_normales)
-                    if caja_aleatoria.agregarCliente(cliente):
-                        asignado = True
-                    else:
-                        # Si no se pudo asignar, remover de la lista para evitar loop infinito
-                        cajas_normales.remove(caja_aleatoria)
-                    intentos += 1
+            # Intentar asignar a una caja aleatoria de las válidas
+            intentos = 0
+            while not asignado and cajas_validas and intentos < 100:
+                caja_aleatoria = random.choice(cajas_validas)
+                if caja_aleatoria.agregarCliente(cliente):
+                    asignado = True
+                else:
+                    # Si no se pudo asignar, remover de la lista para evitar loop infinito
+                    cajas_validas.remove(caja_aleatoria)
+                intentos += 1
 
         # Calcular tiempos
         for caja in self.cajas:

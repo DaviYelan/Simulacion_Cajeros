@@ -55,26 +55,26 @@ def main(num_cajeros, num_clientes, posicion_express):
     # Generar clientes
     clientes = generador.generaClientes(num_clientes)
 
-    # Asignar clientes a cajas con lógica inteligente
+    # Asignar clientes a cajas de manera aleatoria
     for cliente in clientes:
         asignado = False
 
-        # Si el cliente puede usar express (≤10 artículos), intentar primero la caja express
+        # Determinar cajas válidas para el cliente
         if cliente.numeroArticulos <= 10:
-            caja_express = next((caja for caja in cajas if caja.esExpress), None)
-            if caja_express and caja_express.agregarCliente(cliente):
-                asignado = True
+            # Cliente puede usar cualquier caja (express o normal)
+            cajas_validas = cajas
+        else:
+            # Cliente solo puede usar cajas normales
+            cajas_validas = [caja for caja in cajas if not caja.esExpress]
 
-        # Si no se asignó a express (o no puede usarla), asignar a caja normal aleatoria
-        if not asignado:
-            cajas_normales = [caja for caja in cajas if not caja.esExpress]
-            while not asignado and cajas_normales:
-                caja_aleatoria = random.choice(cajas_normales)
-                if caja_aleatoria.agregarCliente(cliente):
-                    asignado = True
-                else:
-                    # Si no se pudo asignar, remover de la lista para evitar loop infinito
-                    cajas_normales.remove(caja_aleatoria)
+        # Intentar asignar a una caja aleatoria de las válidas
+        while not asignado and cajas_validas:
+            caja_aleatoria = random.choice(cajas_validas)
+            if caja_aleatoria.agregarCliente(cliente):
+                asignado = True
+            else:
+                # Si no se pudo asignar, remover de la lista para evitar loop infinito
+                cajas_validas.remove(caja_aleatoria)
 
     # Calcular tiempos de atención para cada caja
     for caja in cajas:
