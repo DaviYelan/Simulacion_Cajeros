@@ -2,8 +2,8 @@ import random
 
 class Cliente:
     def __init__(self, numeroArticulos: int):
-        self.numeroArticulos = numeroArticulos
-        self.tiempoTotal = 0.0
+        self.numeroArticulos = numeroArticulos # 1-50 artículos
+        self.tiempoTotal = 0.0  # Tiempo total en ser atendido, inicializado en 0.0 segundos
 
     def __str__(self):
         return (f"Cliente con {self.numeroArticulos} artículos."

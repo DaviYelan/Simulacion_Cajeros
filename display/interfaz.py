@@ -104,7 +104,7 @@ class SupermercadoGUI:
                 bg="#2c3e50", fg="white", font=("Arial", 9)).pack(side=tk.LEFT, padx=3)
 
         self.combo_posicion = ttk.Combobox(frame_config, values=["primera", "medio", "ultima", "aleatoria"],
-                                        width=8, font=("Arial", 9), state="readonly")
+                                         width=8, font=("Arial", 9), state="readonly")
         self.combo_posicion.set("ultima")
         self.combo_posicion.pack(side=tk.LEFT, padx=3)
 
@@ -240,29 +240,29 @@ class SupermercadoGUI:
             caja = Caja(idCaja=i+1, cajero=cajeros[i], esExpress=es_express)
             self.cajas.append(caja)
 
-        # Generar y asignar clientes de manera aleatoria
+        # Generar y asignar clientes con lógica inteligente
         clientes = generador.generaClientes(num_clientes)
         for cliente in clientes:
             asignado = False
 
-            # Determinar cajas válidas para el cliente
+            # Si el cliente puede usar express (≤10 artículos), intentar primero la caja express
             if cliente.numeroArticulos <= 10:
-                # Cliente puede usar cualquier caja (express o normal)
-                cajas_validas = self.cajas
-            else:
-                # Cliente solo puede usar cajas normales
-                cajas_validas = [caja for caja in self.cajas if not caja.esExpress]
-
-            # Intentar asignar a una caja aleatoria de las válidas
-            intentos = 0
-            while not asignado and cajas_validas and intentos < 100:
-                caja_aleatoria = random.choice(cajas_validas)
-                if caja_aleatoria.agregarCliente(cliente):
+                caja_express = next((caja for caja in self.cajas if caja.esExpress), None)
+                if caja_express and caja_express.agregarCliente(cliente):
                     asignado = True
-                else:
-                    # Si no se pudo asignar, remover de la lista para evitar loop infinito
-                    cajas_validas.remove(caja_aleatoria)
-                intentos += 1
+
+            # Si no se asignó a express (o no puede usarla), asignar a caja normal aleatoria
+            if not asignado:
+                cajas_normales = [caja for caja in self.cajas if not caja.esExpress]
+                intentos = 0
+                while not asignado and cajas_normales and intentos < 100:
+                    caja_aleatoria = random.choice(cajas_normales)
+                    if caja_aleatoria.agregarCliente(cliente):
+                        asignado = True
+                    else:
+                        # Si no se pudo asignar, remover de la lista para evitar loop infinito
+                        cajas_normales.remove(caja_aleatoria)
+                    intentos += 1
 
         # Calcular tiempos
         for caja in self.cajas:

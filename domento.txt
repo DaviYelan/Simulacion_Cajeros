@@ -1,0 +1,39 @@
+## 2. Objetivo(s) de la Práctica:
+
+*   Determinar, desde la perspectiva de negocio, en qué condiciones conviene habilitar una nueva caja, equilibrando el costo por caja activa y el costo/penalización por espera de clientes, manteniendo el nivel de servicio.
+
+## 3. Materiales y reactivos:
+
+*   **Datos de tasa de llegadas por franja (λ)** y **tiempos de servicio por artículo y por cobro** (si no hay históricos, usar estimaciones del Taller 3).
+*   **Costos**:
+    *   **costo por caja activa (c_caja; USD/min)**,
+    *   **costo del tiempo en sistema o espera (c_espera; USD/min por cliente)**,
+    *   **penalización por incumplir el SLA (c_SLA; USD por punto porcentual)**.
+*   **Objetivo de servicio (SLA)**: p.ej., 'al menos el 80% de clientes con tiempo en sistema ≤ 8 minutos'.
+*   **Plantilla de recolección de datos**: matriz de corridas (parámetros, número de cajas s, réplicas R, métricas promedio y variabilidad).
+*   **Semillas de aleatoriedad para reproducibilidad** (una por réplica).
+*   **Guía de supuestos** (distribuciones candidatas y justificación).
+## 5. Procedimiento / Metodología
+
+Enfoque metodológico: ABPr (Aprendizaje Basado en Proyectos).
+
+### Inicio
+*   **Planteamiento del reto**: determinar una regla para habilitar una nueva caja minimizando el costo total y manteniendo el SLA.
+*   **Aclarar el contexto y las restricciones** (espacio, personal, horarios).
+*   **Definir supuestos iniciales**: distribución de llegadas y de servicio; estabilidad del sistema; disciplina de cola (FIFO).
+*   **Establecer criterios de éxito**: métrica de desempeño (CT, W, L, %SLA), umbrales y costos asociados.
+*   **Asignar roles en equipos y acordar el plan de trabajo**.
+
+### Desarrollo
+*   **Diseñar el experimento**: elegir niveles de s (número de cajas) y horizontes de simulación; definir número de réplicas R (≥ 10) para estimar medias y errores estándar.
+*   **Construir/usar la matriz de corridas y registrar** para cada configuración: CT (costo total) = c_caja·(s·tiempo) + c_espera·(Σ tiempo en sistema) + c_SLA·(incumplimiento).
+*   **Calcular indicadores por réplica y agregados**: tiempo en sistema promedio E[T], %SLA, etc
+*   **Graficar los resultados relevantes** para comparar alternativas y detectar rendimientos decrecientes.
+*   **Análisis de sensibilidad**: variar ±10-20% λ o tiempos de servicio para observar robustez de la regla propuesta.
+*   **Documentar decisiones, supuestos y justificaciones de diseño** (V&V conceptual básica).
+
+### Cierre
+*   **Proponer una regla de apertura**: p.ej., 'abrir una nueva caja cuando Lq > Lq\*' o cuando la utilización promedio por caja supere ρ\* durante Δt.
+*   **Justificar con evidencia** (tablas y gráficos); discutir trade-off costo-servicio.
+*   **Reflexión ABPr**: qué funcionó, qué mejorar, hipótesis y validaciones pendientes.
+*   **Entregar en el EVA el reporte técnico con anexos** (hoja de cálculo y capturas).

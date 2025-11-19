@@ -6,24 +6,45 @@ class GeneradorDatos:
     def __init__(self):
         pass
     
-    def generaClientes(self, numeroClientes : int, sesgoexpress = True):
-        clientes = [] #lista vacia para almacenar clientes
+    def generaClientes(self, numeroClientes: int, sesgo_express: bool = True):
+        clientes = []
         for _ in range(numeroClientes):
-            if sesgoexpress:
-                if random.random() < 0.30:
-                    numeroArticulos = random.randint(1, 10) #generamos numero aleatorio de articulos entre 1 y 10
+            if sesgo_express:
+
+                if random.random() < 0.50:
+                    numeroArticulos = random.randint(1, 10)
                 else:
-                    numeroArticulos = random.randint(11, 30) #generamos numero aleatorio de articulos entre 11 y 30
+                    numeroArticulos = random.randint(11, 50)
             else:
-                numeroArticulos = random.randint(1, 50) #generamos numero aleatorio de articulos
-            cliente = Cliente(numeroArticulos) #instancia de cliente
-            clientes.append(cliente) #agregamos cliente  a la lista
+                numeroArticulos = random.randint(1, 50)
+            
+            cliente = Cliente(numeroArticulos)
+            clientes.append(cliente)
         return clientes
-    
-    def generarCajeros(self, numeroCajeros : int):
+
+
+        
+    def generarCajeros(self, numeroCajeros : int, service_multiplier: float = 1.0):
         cajeros = [] #lista vacia para almacenar cajeros
         for _ in range(numeroCajeros):
             experienciaAleatoria = random.choice([True, False]) #generamos experiencia aleatoria
-            cajero = Cajero(experienciaAleatoria) #creamos instancia de cajero con experiencia aleatoria
+            cajero = Cajero(experienciaAleatoria, service_multiplier) #creamos instancia de cajero con experiencia aleatoria
             cajeros.append(cajero) #agregamos cajero a la lista
         return cajeros
+    
+    
+
+    
+
+#sesgo
+# if sesgo_express:
+#             if random.random() < 0.7:
+#                 numeroArticulos = random.randint(1, 10)
+#             else:
+#                 numeroArticulos = random.randint(11, 50)
+#         else:
+#             numeroArticulos = random.randint(1, 50)
+
+
+
+
